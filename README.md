@@ -1,14 +1,17 @@
-One can check the well-formedness of the Canonical Form of MWEs. Tis example shows how this can be done:
+One can check the well-formedness of the Canonical Form of MWEs. This example shows how this can be done:
 
 ```
 from ucfsyntax  import is_wellformed
 
-examples = ['someone +kicks the bucket', someone DO:+takes 0a L:decision', someone DO:+takes 0a L;walk']
+examples = ['someone +kicks the bucket', 'someone DO:+takes 0a L:decision', 'someone DO:+takes 0a L;walk']
 
 for example in examples:
-    if is_wellformed(exampe):
+    if is_wellformed(example):
         print(f'OK: {example}')
     else:
-        print(f'NO: {example}')
-```   
+        print(f'NO: {example}')```   
+```
 
+See the file minimalexample.py.
+
+If one runs the module ucfsyntax.py, it will test the syntax against a range of examples.
