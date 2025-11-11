@@ -3,6 +3,7 @@ from sastadev.readcsv import readcsv
 from collections import defaultdict
 
 infilename = 'variablewords.txt'
+infilename = 'Variable Words - Sheet1.tsv'
 infullname = os.path.join('data', infilename)
 
 def getvblwords(infullname):

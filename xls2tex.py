@@ -1,5 +1,8 @@
 from collections import defaultdict
 from dataclasses import dataclass
+
+from sastadev.childesspellingcorrector import hyphen
+
 from latexdoc import docbegin, docend
 import os
 import re
@@ -12,9 +15,11 @@ from ucfsyntax import is_wellformed
 illegalsymbols = """@#$%&()_{};"\\/123456789"""
 illegalsymbolserror = "Illegal symbols"
 glosserror = "Glosserror"
+morpherror_label = "Morph Mismatch"
 illformedness_error = "Not well-formed"
 
 space = ' '
+hyphen = '-'
 oiamarking = 'oia:'
 ciamarking = 'cia:'
 
@@ -56,6 +61,17 @@ class ExampleMWE:
     language: str
     source: str
 
+def checkmorphs(list1, list2) -> list:
+    # it is presupposed that the lists have the same length
+    errors = []
+    for el1, el2 in zip(list1, list2):
+        morphs1 = el1.split(hyphen)
+        morphs2 = el2.split(hyphen)
+        lmorphs1 = len(morphs1)
+        lmorphs2 = len(morphs2)
+        if lmorphs1 != lmorphs2:
+            errors.append((lmorphs1, lmorphs2, el1, el2))
+    return errors
 
 def containsillegalsymbols(canform: str) -> Tuple[bool, str]:
     illegalchars = ''
@@ -146,6 +162,11 @@ def checkforerrors(data):
             lgloss = len(gloss.split())
             if lcf != lgloss:
                 errors[contributor].append((glosserror, rowcount, cf, gloss, lcf, lgloss))
+            # check for same number of morphs
+            morpherrors = checkmorphs(cf.split(), gloss.split())
+            for morpherror in morpherrors:
+                lmorphs1, lmorphs2, el1, el2 = morpherror
+                errors[contributor].append((morpherror_label, rowcount, el1, el2, lmorphs1, lmorphs2))
     return errors
 
 def ex2tex(ex: ExampleMWE, twolinetranslation=True, lexmarking=True) -> str:
@@ -239,7 +260,7 @@ def reporterrors(errors):
                     print(f'---{rowid}: {errormsg}: {wrongsymbols} in {cf}')
             elif len(tpl) == 6:
                 errormsg, rowid, cf , gloss, lcf, lgloss = tpl
-                if errormsg == glosserror:
+                if errormsg in [glosserror, morpherror_label]:
                     print(f'---{rowid}: {errormsg}: {lcf}<>{lgloss} in <{cf}> with gloss <{gloss}>')
 
 def mkdoc():
